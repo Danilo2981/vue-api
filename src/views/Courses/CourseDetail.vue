@@ -1,10 +1,12 @@
 <template>
-  <h1>{{ course.title }}</h1>
-  <p>{{ course.description }}</p>
-  <p>
-      <b>Categoria: </b>
-      {{ course.category.name }}
-  </p>
+    <div>
+         <h1>{{ course.title }}</h1>
+        <p>{{ course.description }}</p>
+        <p>
+            <b>Categoria: </b>
+            {{ course.category }}
+        </p>
+    </div>
 </template>
 
 <script>

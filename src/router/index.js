@@ -9,11 +9,13 @@ const router = createRouter({
       name: 'home',
       component: HomeView
     },
+    // List courses
     {
       path: '/courses',
       name: 'courseslist',
       component: () => import('../views/Courses/CoursesList.vue')
     },
+    // Edit courses pasa el id del curso
     {
       path: '/courses/:id',
       name: 'coursedetails',
