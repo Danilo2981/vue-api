@@ -15,12 +15,18 @@ const router = createRouter({
       name: 'courseslist',
       component: () => import('../views/Courses/CoursesList.vue')
     },
-    // Edit courses pasa el id del curso
+    // See courses pasa el id del curso
     {
       path: '/courses/:id',
       name: 'coursedetails',
       component: () => import('../views/Courses/CourseDetail.vue')
     },
+      // Edit courses pasa el id del curso
+      {
+        path: '/courses/:id/edit',
+        name: 'courseedit',
+        component: () => import('../views/Courses/CourseEdit.vue')
+      },
     {
       path: '/about',
       name: 'about',
