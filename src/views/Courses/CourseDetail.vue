@@ -4,7 +4,7 @@
         <p>{{ course.description }}</p>
         <p>
             <b>Categoria: </b>
-            {{ course.category }}
+            {{ course.category.name }}
         </p>
     </div>
 </template>

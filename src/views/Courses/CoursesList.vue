@@ -16,18 +16,17 @@
                         <textarea v-model="course.description" name="" id="description" cols="30" rows="5" placeholder="Ingrese la descripcion del curso"></textarea>
                     </div>
                     <div>
-                        <label for="category">Categoria {{ course.category_id }}</label> 
+                        <label for="category">Categoria</label> 
                             <select name="" id="category" v-model="course.category_id">
                                 <option value="" selected disabled>Seleccione una categoria</option>
                                 <!-- le antepone category- para que el key sea unico  -->
-                                <option v-for="category in categories" :key="'category-' + category.id" value="" >
+                                <option v-for="category in categories" :key="'category-' + category.id" :value="category.id" >
                                     {{ category.name }}
                                 </option>
                             </select>
                     </div>
-                    <br>
-
-                    <button id="submit">Guardar</button>
+                    <br>                    
+                    <button type="submit">Guardar</button>
                 </form>
             </div>
             <div class="list">
@@ -84,14 +83,18 @@ export default {
                 })
         },
         saveCourse(){
+            // trae la informacion del objeto course y lo pasa como informacion en el segundo parametro
             this.axios.post('https://cursos-prueba.tk/api/courses', this.course)
                 .then(response => {
+                    // Recupero con response la data y lo pongo en courses con push para ponerle 
+                    // en el array courses
                     this.courses.push(response.data);
-                    // this.course = {
-                    //     title: '',
-                    //     description: '',
-                    //     category_id: ''
-                    // }
+                    // Aca se limpia el formulario para que quede en blanco
+                    this.course = {
+                        title: '',
+                        description: '',
+                        category_id: ''
+                    }
                 })
                 .catch(error => {
                     console.log(error);
