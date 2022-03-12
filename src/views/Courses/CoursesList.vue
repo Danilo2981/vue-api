@@ -1,57 +1,68 @@
 <template>
-    
-    <div>
+    <div class="container">
         <h1>Listado de Cursos</h1>
-        <div class="courses">
-            <div class="list">
-                <ul v-if="errors.length > 0">
-                    <li v-for="error in errors" :key="error.id">
-                        {{error}}
-                    </li>
-                </ul>
-                <form @submit.prevent="saveCourse" class="mb-4">
-                    <!-- sincroniza con course que captura con v-model -->
-                    <div class="mb-2">
-                        <label for="title">Titulo</label>
-                        <br>
-                        <input v-model="course.title" type="text" id="title" placeholder="Ingrese el titulo del curso">
-                    </div>
-                    <div>
-                        <label for="description">Descripcion</label>
-                        <br>
-                        <textarea v-model="course.description" name="" id="description" cols="30" rows="5" placeholder="Ingrese la descripcion del curso"></textarea>
-                    </div>
-                    <div class="mb-2">
-                        <label for="category">Categoria</label> 
-                            <select name="" id="category" v-model="course.category_id">
-                                <option value="" selected disabled>Seleccione una categoria</option>
-                                <!-- le antepone category- para que el key sea unico  -->
-                                <option v-for="category in categories" :key="'category-' + category.id" :value="category.id" >
-                                    {{ category.name }}
-                                </option>
-                            </select>
-                    </div>           
-                    <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
-                </form>
-            </div>
-            <div class="list">
-                <ul>
-                    <li v-for="course in courses" :key="'course-' + course.id" class="mb-2">
-                        <router-link :to="{ name: 'coursedetails', params: { id: course.id } }">
-                            {{ course.title }}
-                        </router-link>
-
-                         -
-                        <button @click="deleteCourse(course.id)" class="btn btn-danger btn-sm">
-                            Eliminar
-                        </button>
-                    </li>
-                </ul>
+        <div class="card bg-light">
+            <ul v-if="errors.length > 0" class="card-body">
+                <li v-for="error in errors" :key="error.id" class="text-danger fw-bold">
+                    {{error}}
+                </li>
+            </ul>
+        </div>
+        <div class="card bg-light text-black mb-4">
+            <form @submit.prevent="saveCourse" class="card-body">
+                <!-- sincroniza con course que captura con v-model -->
+                <div class="mb-2">
+                    <label for="title">Titulo</label>
+                    <input class="form-control" v-model="course.title" type="text" id="title" placeholder="Ingrese el titulo del curso">
+                </div>
+                <div>
+                    <label for="description">Descripcion</label>
+                    <textarea class="form-control" v-model="course.description" name="" id="description" cols="30" rows="5" placeholder="Ingrese la descripcion del curso"></textarea>
+                </div>
+                <div class="mb-2">
+                    <label for="category">Categoria</label> 
+                        <select class="form-control" name="" id="category" v-model="course.category_id">
+                            <option value="" selected disabled>Seleccione una categoria</option>
+                            <!-- le antepone category- para que el key sea unico  -->
+                            <option v-for="category in categories" :key="'category-' + category.id" :value="category.id" >
+                                {{ category.name }}
+                            </option>
+                        </select>
+                </div>           
+                <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+            </form>
+        </div>
+        <div mb-4>
+            <h2>Buscador</h2>
+            <input v-model="search" type="text" placeholder="Ingrese una palabra para buscar" class="form-control">
+        </div>
+        <div>
+            <table class="table mb-2 text-white">
+                <thead>
+                    <tr>
+                        <th scope="col">Title</th>
+                        <th scope="col">Accion</th>
+                    </tr>
+                </thead>
+                <tbody v-for="course in courses" :key="'course-' + course.id">
+                    <tr>
+                        <td>
+                            <router-link :to="{ name: 'coursedetails', params: { id: course.id } }">
+                                {{ course.title }}
+                            </router-link>        
+                        </td>
+                        <td>
+                            <button @click="deleteCourse(course.id)" class="btn btn-danger btn-sm">
+                                Eliminar
+                            </button>        
+                        </td>
+                    </tr>
+                </tbody>
                 <div class="d-flex justify-content-center">
                     <nav aria-label="Page navigation example">
                         <ul class="pagination">
                             <!-- desabilita los botones previous en pagina 1 y next en pagina ultima con class: -->
-                            <li v-for="pagination_link in pagination_links" 
+                            <li v-for="pagination_link in pagination.links" 
                             :key="'pagination_link-' + pagination_link.label" class="page-item"                            
                             :class="{
                                 'disabled' : pagination_link.url == null,
@@ -68,10 +79,9 @@
                         </ul>
                     </nav>
                 </div>
-            </div>
+            </table>
         </div>
-    </div>    
-    {{page}}
+    </div>
 </template>
 
 <script>
@@ -88,7 +98,8 @@ export default {
                 category_id: ''
             },
             errors: [],
-            pagination_links: [],
+            search: '',
+            pagination: {}
         }
     },
     // Crea el metodo una vez se haya ejecutado
@@ -100,7 +111,26 @@ export default {
     computed: {
         page(){
             // recupera lo que diga page en la ruta y si no pasa nada es 1
-            return this.$route.query.page ?? 1;
+            let page = this.$route.query.page ?? 1;
+            // para poder acceder a la ultima pagina cuando se borra los ultimos mensajes    
+            if(page > this.pagination.last_page){
+                // remplaza la url con la ultima pagina si la pagina es mayor a la ultima
+                this.$router.replace({
+                    query: {
+                        page: this.pagination.last_page 
+                    }
+                });
+            }   
+            return page;
+        }
+    },
+    // pasa lo de page a la peticion para que funcione la paginacion
+    watch: {
+        page(){
+            this.getCourses();
+        },
+        search(){
+            this.getCourses();
         }
     },
     // Utiliza get para conseguir los datos a traves de axios
@@ -115,16 +145,32 @@ export default {
                 })    
         },
         getCourses(){
-            // per_page=10 pagina de 10 en  10
-            // &page= asigna el numero de pagina en el que se encuentra 
-            this.axios.get('https://cursos-prueba.tk/api/courses?per_page=10' + '&page=' + this.page )
+            
+            
+            
+            // this.axios.get('https://cursos-prueba.tk/api/courses?sort=-id&per_page=10&page=' + this.page + '&filter[title]=' + this.search)
+            this.axios.get('https://cursos-prueba.tk/api/courses', {
+                params: {
+                    // Sort= ordena los items de la lista sin - de menor a mayor con - de mayor a menor
+                    sort: '-id',
+                    // per_page=10 pagina de 10 en  10
+                    per_page: 10,
+                    // &page= asigna el numero de pagina en el que se encuentra 
+                    page: this.page,
+                    // &filter[title]= + this.seach para el buscador
+                    'filter[title]': this.search,
+                }
+            })
                 .then(response => {
                     // res consigue lo que esta en data per page
                     let res = response.data;
                     // le pasamaos el res para que coja solo lo paginado
                     this.courses = res.data;
-                    // recuperamos los links de pagination de la api
-                    this.pagination_links = res.links;
+                    // recuperamos los links de pagination de la api y la ultima pagina last_page
+                    this.pagination = {
+                        links:res.links,
+                        last_page:res.last_page,
+                    };   
                 })
                 .catch(error => {
                     console.log(error);
@@ -133,10 +179,12 @@ export default {
         saveCourse(){
             // trae la informacion del objeto course y lo pasa como informacion en el segundo parametro
             this.axios.post('https://cursos-prueba.tk/api/courses', this.course)
-                .then(response => {
+                .then(() => {
                     // Recupero con response la data y lo pongo en courses con push para ponerle 
                     // en el array courses
-                    this.courses.push(response.data);
+                    // this.courses.push(response.data);
+                    // Para la paginacion ya no uso el response uso getCourses()
+                    this.getCourses();
                     // Aca se limpia el formulario para que quede en blanco
                     this.course = {
                         title: '',
@@ -158,17 +206,20 @@ export default {
             this.axios.delete('https://cursos-prueba.tk/api/courses/' + id)
                 .then( () => {
                     // Filtra los cursos que no tienen el mismo id para mostrarlos en la lista
-                    this.courses = this.courses.filter(course => course.id != id);
+                    // this.courses = this.courses.filter(course => course.id != id);
+                    // para paginacion traigo el metodo getCourse()
+                    this.getCourses();
                 })
                 .catch(error => {
                     console.log(error);
                 })
         },
+        // captura lo que pasa en la url en page
         changePage(url){
-            let page = url.split('page=')[1];
-
             this.$router.replace({
-                query:
+                query: {
+                    page: url.split('page=')[1],
+                }
             });
         }
     }
@@ -176,21 +227,5 @@ export default {
 </script>
 
 <style>
-
-.courses {
-    display: inline-flex;
-}
-
-.list {
-    width: 50%
-}
-
-input {
-    width: 240px;
-}
-
-select{
-    width: 240px;
-}
 
 </style>
