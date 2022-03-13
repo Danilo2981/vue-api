@@ -85,7 +85,29 @@
 </template>
 
 <script>
+
+import usePaginate from '../../composables/usePagination.js'
+
 export default {
+    // trae el composable importado 
+    setup(){
+        const {
+            pagination,
+            page,
+            setPagination,
+            changePage
+        } = usePaginate();
+
+        // y lo retorna
+        // para que el componente lo reciba hay que retornar la constante
+        return {
+            pagination,
+            page,
+            setPagination,
+            changePage
+        }
+    },
+
     // Define la propiedad a extraer de la base
     data(){
         return {
@@ -98,31 +120,13 @@ export default {
                 category_id: ''
             },
             errors: [],
-            search: '',
-            pagination: {}
+            search: ''
         }
     },
     // Crea el metodo una vez se haya ejecutado
     created(){
         this.getCategories();
         this.getCourses();
-    },
-    // Al paginar ya no se utilizara el params, se utilizara query que captura lo que se ponga en la url
-    computed: {
-        page(){
-            // recupera lo que diga page en la ruta y si no pasa nada es 1
-            let page = this.$route.query.page ?? 1;
-            // para poder acceder a la ultima pagina cuando se borra los ultimos mensajes    
-            if(page > this.pagination.last_page){
-                // remplaza la url con la ultima pagina si la pagina es mayor a la ultima
-                this.$router.replace({
-                    query: {
-                        page: this.pagination.last_page 
-                    }
-                });
-            }   
-            return page;
-        }
     },
     // pasa lo de page a la peticion para que funcione la paginacion
     watch: {
@@ -135,6 +139,7 @@ export default {
     },
     // Utiliza get para conseguir los datos a traves de axios
     methods: {
+        // metodos de la api
         getCategories(){
             this.axios.get('https://cursos-prueba.tk/api/categories')
                 .then(response => {
@@ -145,9 +150,6 @@ export default {
                 })    
         },
         getCourses(){
-            
-            
-            
             // this.axios.get('https://cursos-prueba.tk/api/courses?sort=-id&per_page=10&page=' + this.page + '&filter[title]=' + this.search)
             this.axios.get('https://cursos-prueba.tk/api/courses', {
                 params: {
@@ -166,11 +168,10 @@ export default {
                     let res = response.data;
                     // le pasamaos el res para que coja solo lo paginado
                     this.courses = res.data;
-                    // recuperamos los links de pagination de la api y la ultima pagina last_page
-                    this.pagination = {
-                        links:res.links,
-                        last_page:res.last_page,
-                    };   
+                    
+                    // metodo para paginacion setPaginartio()
+                    this.setPagination(res);
+                    // Funcion referida en setup   
                 })
                 .catch(error => {
                     console.log(error);
@@ -214,14 +215,6 @@ export default {
                     console.log(error);
                 })
         },
-        // captura lo que pasa en la url en page
-        changePage(url){
-            this.$router.replace({
-                query: {
-                    page: url.split('page=')[1],
-                }
-            });
-        }
     }
 }
 </script>
