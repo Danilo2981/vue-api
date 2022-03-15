@@ -141,7 +141,7 @@ export default {
     methods: {
         // metodos de la api
         getCategories(){
-            this.axios.get('https://cursos-prueba.tk/api/categories')
+            this.axios.get('/api/categories')
                 .then(response => {
                     this.categories = response.data;
                 })
@@ -151,7 +151,8 @@ export default {
         },
         getCourses(){
             // this.axios.get('https://cursos-prueba.tk/api/courses?sort=-id&per_page=10&page=' + this.page + '&filter[title]=' + this.search)
-            this.axios.get('https://cursos-prueba.tk/api/courses', {
+            // https: referenciado en main.js en baseURL
+            this.axios.get('/api/courses', {
                 params: {
                     // Sort= ordena los items de la lista sin - de menor a mayor con - de mayor a menor
                     sort: '-id',
@@ -179,7 +180,7 @@ export default {
         },
         saveCourse(){
             // trae la informacion del objeto course y lo pasa como informacion en el segundo parametro
-            this.axios.post('https://cursos-prueba.tk/api/courses', this.course)
+            this.axios.post('/api/courses', this.course)
                 .then(() => {
                     // Recupero con response la data y lo pongo en courses con push para ponerle 
                     // en el array courses
@@ -204,7 +205,7 @@ export default {
         },
         deleteCourse(id){
             // Concatenar con el ID para poder borrar el curso
-            this.axios.delete('https://cursos-prueba.tk/api/courses/' + id)
+            this.axios.delete('/api/courses/' + id)
                 .then( () => {
                     // Filtra los cursos que no tienen el mismo id para mostrarlos en la lista
                     // this.courses = this.courses.filter(course => course.id != id);

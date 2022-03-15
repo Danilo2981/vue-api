@@ -7,6 +7,9 @@ import store from './store'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 
+// Usar bases URL para el proyecto
+axios.defaults.baseURL = "https://cursos-prueba.tk/"
+
 const app = createApp(App)
 
 app.use(VueAxios, axios).use(store).use(router)

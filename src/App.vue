@@ -9,12 +9,20 @@ import HelloWorld from '@/components/HelloWorld.vue'
 
     <div class="wrapper">
       <HelloWorld msg="You did it!" />
-
+      
       <nav>
         <RouterLink to="/">Home</RouterLink>
         <RouterLink :to="{name: 'courseslist'}">Cursos</RouterLink>
         <RouterLink to="/about">About</RouterLink>
       </nav>
+      <nav>
+        <RouterLink :to="{name: 'login'}">Login</RouterLink>
+        <RouterLink :to="{name: 'register'}">Registro</RouterLink>
+      </nav>
+      
+    </div>
+    <div class="wrapper">
+      
     </div>
   </header>
 

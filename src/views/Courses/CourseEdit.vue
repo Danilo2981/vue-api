@@ -48,7 +48,7 @@ export default {
     },
     methods:{
         getCategories(){
-            this.axios.get('https://cursos-prueba.tk/api/categories')
+            this.axios.get('/api/categories')
                 .then(response => {
                     this.categories = response.data;
                 })
@@ -59,7 +59,7 @@ export default {
         getCourse(){
             // obtiene con params el id del curso
             // included permite relacionar la categoria en otra tabla
-            this.axios.get('https://cursos-prueba.tk/api/courses/' + this.$route.params.id + '?included=category')
+            this.axios.get('/api/courses/' + this.$route.params.id + '?included=category')
                 .then(response => {
                     this.course = response.data;
                 })
@@ -71,7 +71,7 @@ export default {
             // obtiene con params el id del curso
             // included permite relacionar la categoria en otra tabla
             // en update hay quepasarle el course como segundo parametro
-            this.axios.put('https://cursos-prueba.tk/api/courses/' + this.$route.params.id, this.course)
+            this.axios.put('/api/courses/' + this.$route.params.id, this.course)
                 .then( () => {
                     // reenviamos a la ruta de detalles una vez actualizado y y le paso el id editado
                     this.$router.push({ name: 'coursedetails', params: { id: this.$route.params.id } });
